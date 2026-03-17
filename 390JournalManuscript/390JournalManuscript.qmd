@@ -1,0 +1,74 @@
+---
+title: Eriksen Flanker Experiment 
+subtitle: Results from The Eriksen Flanker Task Conducted on Psych390 Students 
+author:
+  - name: Rubee Kung 
+    email: rkung@uwaterloo.ca
+    affiliations: [uw]
+    attributes:
+        corresponding: true
+  - name: Nicole Hua
+    email: nhua@uwaterloo.ca
+    affiliations: [uw]
+  - name: Jacob Grima
+    email: jgrima@uwaterloo.ca
+    affiliations: [uw]
+  - name: Eda Kubra Ozkaya
+    email: ekozkaya@uwaterloo.ca
+    affiliations: [uw]
+affiliations: 
+  - id: uw 
+    name: University of Waterloo 
+    Department: Department of Psychology 
+    address: University Ave, W 
+    city: Waterloo
+    state: Ontario 
+    postal-code: N2l 3G1
+
+abstract: |
+  For our final assignment, we coded an Eriksen Flanker Task on the students of Psych 390. 
+keywords: 
+  - Eriksen Flanker 
+  - Congruent 
+  - Incongruent 
+date: 2026-04-22
+bibliography: bibliography.bib
+format:
+  elsevier-pdf:
+    keep-tex: true
+    journal:
+      name: Journal Name
+      formatting: preprint
+      # model: 3p # Don't set a model with preprint
+      cite-style: authoryear
+---
+
+# Intro
+
+# Methods 
+
+used @hkirsch94_github and @marsja_flankercode to build this code. 
+
+# Results 
+
+one in-line stat
+one significant statistical analysis 
+one plot generated from code -- with appropriate automatic label 
+
+@fig-significantfinding is generated using a python chunk.
+
+```{python}
+#| label: fig-significantfinding
+#| fig-cap: A figure of a significant finding of ours using matplotlib.org
+#| fig-width: 5
+#| fig-height: 5
+#| fig-align: center
+#| out-width: 50%
+#| echo: false
+```
+
+The template for this plot was found on @matplotlib_website
+
+# Discussion
+
+# References {-}
