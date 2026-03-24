@@ -1,15 +1,31 @@
 ---
-title: "My Presentation"
-author: "Your Name"
+title: "Eriksen Flanker Experiment"
+author: "Rubee Kung, Nicole Hua, Jacob Grima, Eda Kubra Ozkaya"
 date: today
 format: revealjs
 ---
 
-## Slide 1
+## Introduction
 
 - First bullet point
 - Second bullet point
 
-## Slide 2
+## Methods
 
-Some content here
+- First bullet point
+- Second bullet point
+
+## Results
+- First bullet point
+- Second bullet point
+
+
+## Discussion
+- First bullet point
+- Second bullet point
+
+
+## Conclusion
+- First bullet point
+- Second bullet point
+
