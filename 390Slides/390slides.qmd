@@ -25,9 +25,6 @@ format:
 - Conditions:
     - Congruent vs. Incongruent
     - Left vs. Right
-- Participants
-    - N = 16
-    - Recruited from classmates
 - Measures
     - Reaction time (ms)
     - Accuracy (%)
@@ -40,6 +37,8 @@ format:
 - Stimuli & Response
     - Arrow strings (e.g., <<<<<, >><>>)
     - Respond to the center arrow only
+
+## Structure & Implementation
 - Trial Structure
     - Fixation (500 ms)
     - Stimulus (max 2000 ms)
