@@ -48,95 +48,351 @@ format:
 
 
 # Methods 
+## Participants
+A total of N = 16 participants were recruited from classmates and personal contacts. Participation was voluntary, and no formal screening criteria were applied, as this project was conducted as a course-based demonstration of experimental tools rather than formal research.
 
-used @hkirsch94_github and @marsja_flankercode to build this code. 
+## Design
+The experiment employed a within-subject design in which all participants completed all experimental conditions. The task included two independent variables: congruency (congruent vs. incongruent trials) and direction (left vs. right). The primary dependent variables were reaction time (RT), measured in milliseconds, and accuracy, coded as correct (1) or incorrect (0).
+
+## Task and Stimuli
+The experiment was based on a modified Eriksen flanker task, similar to what was done in the Stoffels & Van der Molen (1988) study, as this study used arrows instead of letters. In each trial, participants were presented with a horizontal array of five arrows. In congruent trials, all arrows pointed in the same direction, whereas in incongruent trials, the central arrow pointed in an opposite direction from the surrounding arrows. Participants were instructed to respond to the direction of the central arrow while ignoring the flanking arrows, and respond as quickly and accurately as possible. Responses were made using the left and right arrow keys on a standard keyboard.
+
+## Procedure
+Participants first completed four practice trials with feedback to familiarize themselves with the task. Following the practice phase, they completed 20 experimental trials without feedback. Trials were randomly generated across conditions, ensuring that both congruent and incongruent trials, as well as left and right directions, were represented. Each trial began with a fixation cross presented for 500 ms, followed by the stimulus, which remained on the screen until a response was made or for a maximum of 2000 ms. After the response or timeout, a blank screen was presented for an inter-trial interval of 700 ms before the next trial began.
+
+## Apparatus and Implementation
+The task was implemented in Python using the pygame library, which enabled precise control over stimulus presentation and response collection. Reaction time was recorded as the interval between stimulus onset and the participant’s keypress, and accuracy was determined by comparing the response to the correct direction for each trial. All trial-level data, including condition, response, accuracy, and reaction time, were automatically recorded and saved as CSV files for each participant.The implementation was designed to ensure consistent timing and reproducible data collection across participants.
+
+## Data Analysis 
+The data from each participant’s CSV file were compiled into a single dataset using Python. All statistical analyses were conducted in Python. Prior to analysis, practice trials were excluded, and inaccurate trials were removed from analyses of reaction time.
+Mean reaction time and mean accuracy were calculated for all conditions. A one-way repeated measures analysis of variance (ANOVA) was conducted to examine the effect of congruency (congruent vs. incongruent) on reaction time and accuracy. In addition, a 2 × 2 repeated measures ANOVA was conducted to examine the effects of congruency (congruent vs. incongruent) and direction (left vs. right) on reaction time and accuracy.
+Although congruency was the primary variable of interest, direction was included based on prior research suggesting that visual congruency reflects both perceptual and motor processes (Coles, 1985, as cited in @stoffels1988). 
+
 
 # Results 
 
-
-one in-line stat
-one significant statistical analysis 
-one plot generated from code -- with appropriate automatic label 
-use a repeated meausres anova comparing reaction time as a function of the stimulus.
-
 ```{python}
-#code built by aider model StepFun: Step 3.5 Flash (free) and edited by ChatGPT
-import pandas as pd
+#| echo: false
+#| warning: false
+#| message: false
+#| #| results: 'hide'
+
+import pandas as pd 
 from statsmodels.stats.anova import AnovaRM
 
-# Read in the CSV data
-data = pd.read_csv("csvforanova.csv")
+data = pd.read_csv("../flankerdata/combined.csv")
+# keep only main trials
+data = data[data["block"] == "main"]
+#---
+#Descriptive Statistics -- Mean Reaction Time and Mean Accuracy
+#---
+rt_desc = data[data["accuracy"] == 1].copy()
+rt_desc["rt"] = pd.to_numeric(rt_desc["rt"], errors="coerce")
+rt_desc = rt_desc.dropna(subset=["rt"])
 
-# Filter out rows with missing rt values
-data = data.dropna(subset=["rt"])
+#print("Mean RT:")
+#print(rt_desc.groupby("type")["rt"].mean())
 
-# Convert rt to numeric
-data["rt"] = pd.to_numeric(data["rt"], errors="coerce")
-data = data.dropna(subset=["rt"])
+#print("\nAccuracy:")
+#print(data.groupby("type")["accuracy"].mean())
 
-# Keep only correct trials if accuracy exists
-if "accuracy" in data.columns:
-    data = data[data["accuracy"] == 1]
+#---
+#One-way Repeated Measures ANOVA - Reaction Time (correct trials only)
+#---
 
-# Keep only main trials if block exists
-if "block" in data.columns:
-    data = data[data["block"] == "main"]
 
-# Repeated measures ANOVA
-# For the standard flanker analysis, use 2 conditions:
-# congruent vs incongruent
-rm_anova = AnovaRM(
-    data=data,
+rt_data = data[data["accuracy"] == 1].copy()
+rt_data["rt"] = pd.to_numeric(rt_data["rt"], errors="coerce")
+rt_data = rt_data.dropna(subset=["rt"])
+
+rt_results1way = AnovaRM(
+    data=rt_data,
     depvar="rt",
     subject="participant",
     within=["type"],
     aggregate_func="mean"
+).fit()
+
+#print("\nRT 1-way:")
+#print(rt_results1way)
+
+#in-line stat
+rt1 = rt_results1way.anova_table.iloc[0]
+rt1_p = rt1["Pr > F"]
+rt1_p_txt = "< .001" if rt1_p < .001 else f"= {rt1_p:.3f}".replace("0.", ".")
+
+rt1_stat = (
+    f"F({int(rt1['Num DF'])}, {int(rt1['Den DF'])}) = "
+    f"{rt1['F Value']:.2f}, p {rt1_p_txt}"
 )
 
-results = rm_anova.fit()
 
-# Print the ANOVA table
-print(results)
+#---
+#One-way Repeated Measures ANOVA - Accuracy (all trials)
+#---
+acc_results1way = AnovaRM(
+    data=data,
+    depvar="accuracy",
+    subject="participant",
+    within=["type"],
+    aggregate_func="mean"
+).fit()
 
+#print("\nAccuracy 1-way:")
+#print(acc_results1way)
+
+#in-line stat
+acc1 = acc_results1way.anova_table.iloc[0]
+acc1_p = acc1["Pr > F"]
+acc1_p_txt = "< .001" if acc1_p < .001 else f"= {acc1_p:.3f}".replace("0.", ".")
+
+acc1_stat = (
+    f"F({int(acc1['Num DF'])}, {int(acc1['Den DF'])}) = "
+    f"{acc1['F Value']:.2f}, p {acc1_p_txt}"
+)
+
+#---
+#2 x 2 Repeated Measures ANOVA - Reaction Time (correct trials only)
+#---
+rt = data[data["accuracy"] == 1].copy()
+
+rt_agg = rt.groupby(["participant", "type", "direction"], as_index=False)["rt"].mean()
+
+# keep only participants with all 4 conditions
+rt_agg = rt_agg.groupby("participant").filter(lambda x: len(x) == 4)
+
+rt_results2way = AnovaRM(
+    data=rt_agg,
+    depvar="rt",
+    subject="participant",
+    within=["type", "direction"]
+).fit()
+
+#print("\nRT 2x2:")
+#print(rt_results2way)
+
+#inline stat 
+rt2_type = rt_results2way.anova_table.loc["type"]
+rt2_dir = rt_results2way.anova_table.loc["direction"]
+rt2_int = rt_results2way.anova_table.loc["type:direction"]
+
+rt2_type_p = rt2_type["Pr > F"]
+rt2_dir_p = rt2_dir["Pr > F"]
+rt2_int_p = rt2_int["Pr > F"]
+
+rt2_type_p_txt = "< .001" if rt2_type_p < .001 else f"= {rt2_type_p:.3f}".replace("0.", ".")
+rt2_dir_p_txt = "< .001" if rt2_dir_p < .001 else f"= {rt2_dir_p:.3f}".replace("0.", ".")
+rt2_int_p_txt = "< .001" if rt2_int_p < .001 else f"= {rt2_int_p:.3f}".replace("0.", ".")
+
+rt2_cong_stat = (
+    f"F({int(rt2_type['Num DF'])}, {int(rt2_type['Den DF'])}) = "
+    f"{rt2_type['F Value']:.2f}, p {rt2_type_p_txt}"
+)
+
+rt2_dir_stat = (
+    f"F({int(rt2_dir['Num DF'])}, {int(rt2_dir['Den DF'])}) = "
+    f"{rt2_dir['F Value']:.2f}, p {rt2_dir_p_txt}"
+)
+
+rt2_int_stat = (
+    f"F({int(rt2_int['Num DF'])}, {int(rt2_int['Den DF'])}) = "
+    f"{rt2_int['F Value']:.2f}, p {rt2_int_p_txt}"
+)
+
+#---
+#2 x 2 Repeated Measures ANOVA - Accuracy (all trials)
+#---
+acc_agg = data.groupby(["participant", "type", "direction"], as_index=False)["accuracy"].mean()
+
+acc_agg = acc_agg.groupby("participant").filter(lambda x: len(x) == 4)
+
+acc_results2way = AnovaRM(
+    data=acc_agg,
+    depvar="accuracy",
+    subject="participant",
+    within=["type", "direction"]
+).fit()
+
+#print("\nAccuracy 2x2:")
+#print(acc_results2way)
+
+#in-line stat 
+acc2_type = acc_results2way.anova_table.loc["type"]
+acc2_dir = acc_results2way.anova_table.loc["direction"]
+acc2_int = acc_results2way.anova_table.loc["type:direction"]
+
+acc2_type_p = acc2_type["Pr > F"]
+acc2_dir_p = acc2_dir["Pr > F"]
+acc2_int_p = acc2_int["Pr > F"]
+
+acc2_type_p_txt = "< .001" if acc2_type_p < .001 else f"= {acc2_type_p:.3f}".replace("0.", ".")
+acc2_dir_p_txt = "< .001" if acc2_dir_p < .001 else f"= {acc2_dir_p:.3f}".replace("0.", ".")
+acc2_int_p_txt = "< .001" if acc2_int_p < .001 else f"= {acc2_int_p:.3f}".replace("0.", ".")
+
+acc2_cong_stat = (
+    f"F({int(acc2_type['Num DF'])}, {int(acc2_type['Den DF'])}) = "
+    f"{acc2_type['F Value']:.2f}, p {acc2_type_p_txt}"
+)
+
+acc2_dir_stat = (
+    f"F({int(acc2_dir['Num DF'])}, {int(acc2_dir['Den DF'])}) = "
+    f"{acc2_dir['F Value']:.2f}, p {acc2_dir_p_txt}"
+)
+
+acc2_int_stat = (
+    f"F({int(acc2_int['Num DF'])}, {int(acc2_int['Den DF'])}) = "
+    f"{acc2_int['F Value']:.2f}, p {acc2_int_p_txt}"
+)
 ```
 
-@fig-significantfinding is generated using a python chunk.
+Reaction time and accuracy were first analyzed as a function of congruency alone. A second analysis was completed for these variables as a function of both congruency and direction. 
+
+## Reaction Time 
+
+Reaction times were longer in incongruent trials (*M* = 571.28 ms) than in congruent trials (*M* = 477.41 ms) across both directions. A one-way repeated-measures ANOVA revealed a significant main effect of congruency on reaction time (`{python} rt1_stat`), with longer reaction times in incongruent trials. A 2 x 2 repeated measures ANOVA revealed a significant main effect of congruency on reaction time (`{python} rt2_cong_stat`). There was no significant main effect of direction (`{python} rt2_dir_stat`) and no significant interaction between congruency and direction (`{python} rt2_int_stat`). The results for the reaction time of congruent trials compared to the incongruent trials are depicted in @fig-rt.
 
 ```{python}
-#| label: fig-significantfinding 
-#| fig-cap: A figure of a significant finding of ours using matplotlib.org
+#| label: fig-rt
+#| fig-cap: Mean reaction time (ms) by congruency and direction. Error bars represent ±1 SEM.
 #| fig-width: 5
 #| fig-height: 5
 #| fig-align: center
-#| out-width: 50%
+#| out-width: 70%
+#| fig-pos: H
 #| echo: false
+#| warning: false
+#| message: false
 
-import pandas as pd #is not the final plot, will pick a prettier one...
+import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
-df = pd.read_csv("csvforanova.csv")
-#| print(df.columns)
+data = pd.read_csv("../flankerdata/combined.csv")
+data = data[data["block"] == "main"]
 
-#must compute participant means 
-means = df.groupby(['participant', 'type'])['rt'].mean().reset_index() #computes one mean for each condition (congruent vs incongruent)
+rt = data[data["accuracy"] == 1].copy()
+rt["rt"] = pd.to_numeric(rt["rt"], errors="coerce")
+rt = rt.dropna(subset=["rt"])
 
-#must compute group means 
-group_means = means.groupby('type')['rt'].mean()
+rt_subj = rt.groupby(["participant", "type", "direction"], as_index=False)["rt"].mean()
+rt_summary = rt_subj.groupby(["type", "direction"])["rt"].agg(["mean", "sem"]).reset_index()
 
-#we need the standard error of the mean (SEM)
-group_sem = means.groupby('type')['rt'].sem()
+congruency = ("Congruent", "Incongruent")
 
-#values and plotting
-conditions = group_means.index
-values = group_means.values
-errors = group_sem.values
-plt.bar(conditions, values, yerr=errors, capsize=5)
-plt.ylabel("Reaction Time (ms)")
-plt.title("Effect of Congruency on Reaction Time")
+rt_means = {
+    "Left": (
+        rt_summary[(rt_summary["type"] == "congruent") & (rt_summary["direction"] == "left")]["mean"].values[0],
+        rt_summary[(rt_summary["type"] == "incongruent") & (rt_summary["direction"] == "left")]["mean"].values[0],
+    ),
+    "Right": (
+        rt_summary[(rt_summary["type"] == "congruent") & (rt_summary["direction"] == "right")]["mean"].values[0],
+        rt_summary[(rt_summary["type"] == "incongruent") & (rt_summary["direction"] == "right")]["mean"].values[0],
+    ),
+}
+
+rt_sems = {
+    "Left": (
+        rt_summary[(rt_summary["type"] == "congruent") & (rt_summary["direction"] == "left")]["sem"].values[0],
+        rt_summary[(rt_summary["type"] == "incongruent") & (rt_summary["direction"] == "left")]["sem"].values[0],
+    ),
+    "Right": (
+        rt_summary[(rt_summary["type"] == "congruent") & (rt_summary["direction"] == "right")]["sem"].values[0],
+        rt_summary[(rt_summary["type"] == "incongruent") & (rt_summary["direction"] == "right")]["sem"].values[0],
+    ),
+}
+
+x = np.arange(len(congruency))
+width = 0.25
+multiplier = 0
+
+fig, ax = plt.subplots(layout="constrained")
+
+for direction, measurement in rt_means.items():
+    offset = width * multiplier
+    errors = rt_sems[direction]
+    ax.bar(x + offset, measurement, width, yerr=errors, capsize=5, label=direction)
+    multiplier += 1
+
+ax.set_ylabel("Reaction Time (ms)")
+ax.set_title("Reaction Time by Congruency and Direction")
+ax.set_xticks(x + width / 2, congruency)
+ax.legend()
+
+plt.show()
+```
+## Accuracy 
+
+Accuracy was higher for congruent trials (M = .97) than for incongruent trials (M = .81) across both directions. A one-way repeated measures ANOVA revealed a significant main effect of congruency on accuracy (`{python} acc1_stat`), with higher accuracy on congruent trials. A 2 x 2 repeated measures ANOVA revealed a significant main effect of congruency on accuracy (`{python} acc2_cong_stat`). There was no significant main effect of direction (`{python} acc2_dir_stat`) and no significant interaction between congruency and direction (`{python} acc2_int_stat`). The results for the reaction time of congruent trials compared to the incongruent trials are depicted in @fig-acc.
+
+```{python}
+#| label: fig-acc
+#| fig-cap: Mean accuracy by congruency and direction. Error bars represent ±1 SEM.
+#| fig-width: 5
+#| fig-height: 5
+#| fig-align: center
+#| out-width: 70%
+#| fig-pos: H
+#| echo: false
+#| warning: false
+#| message: false
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+data = pd.read_csv("../flankerdata/combined.csv")
+data = data[data["block"] == "main"]
+
+acc_subj = data.groupby(["participant", "type", "direction"], as_index=False)["accuracy"].mean()
+acc_summary = acc_subj.groupby(["type", "direction"])["accuracy"].agg(["mean", "sem"]).reset_index()
+
+congruency = ("Congruent", "Incongruent")
+
+acc_means = {
+    "Left": (
+        acc_summary[(acc_summary["type"] == "congruent") & (acc_summary["direction"] == "left")]["mean"].values[0],
+        acc_summary[(acc_summary["type"] == "incongruent") & (acc_summary["direction"] == "left")]["mean"].values[0],
+    ),
+    "Right": (
+        acc_summary[(acc_summary["type"] == "congruent") & (acc_summary["direction"] == "right")]["mean"].values[0],
+        acc_summary[(acc_summary["type"] == "incongruent") & (acc_summary["direction"] == "right")]["mean"].values[0],
+    ),
+}
+
+acc_sems = {
+    "Left": (
+        acc_summary[(acc_summary["type"] == "congruent") & (acc_summary["direction"] == "left")]["sem"].values[0],
+        acc_summary[(acc_summary["type"] == "incongruent") & (acc_summary["direction"] == "left")]["sem"].values[0],
+    ),
+    "Right": (
+        acc_summary[(acc_summary["type"] == "congruent") & (acc_summary["direction"] == "right")]["sem"].values[0],
+        acc_summary[(acc_summary["type"] == "incongruent") & (acc_summary["direction"] == "right")]["sem"].values[0],
+    ),
+}
+
+x = np.arange(len(congruency))
+width = 0.25
+multiplier = 0
+
+fig, ax = plt.subplots(layout="constrained")
+
+for direction, measurement in acc_means.items():
+    offset = width * multiplier
+    errors = acc_sems[direction]
+    ax.bar(x + offset, measurement, width, yerr=errors, capsize=5, label=direction)
+    multiplier += 1
+
+ax.set_ylabel("Accuracy")
+ax.set_title("Accuracy by Congruency and Direction")
+ax.set_xticks(x + width / 2, congruency)
+ax.legend()
+ax.set_ylim(0, 1.05)
+
 plt.show()
 ```
 
-The template for this plot was found on @matplotlib_website
+
+
 
 # Discussion
 
