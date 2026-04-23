@@ -26,6 +26,7 @@ affiliations:
     postal-code: N2l3G1
 
 abstract: The Eriksen flanker task is a widely used measure of selective attention and inhibitory control, in which individuals respond to a central target while ignoring surrounding distractor stimuli. The present study aimed to replicate the flanker interference effect using an arrow-based variation. A sample of 16 undergraduate students from the University of Waterloo participated in a within-subjects experiment in which reaction time and accuracy were measured across 20 trials varying in congruency (congruent vs. incongruent) and direction (left vs. right). Results indicated that participants responded significantly slower on incongruent trials compared to congruent trials, F(1, 15) = 56.70, p < .001, and also showed reduced accuracy in incongruent conditions, demonstrating the expected interference effect. No significant effects of direction or interaction between direction and congruency were observed, suggesting that performance differences were driven specifically by distractor congruency. These findings support theories of selective attention and cognitive control by showing that task-irrelevant stimuli are processed automatically and can interfere with response selection. Overall, the results replicate the flanker effect and highlight the utility of the flanker paradigm for examining attentional control.
+<<<<<<< HEAD
 
 keywords: 
   - Eriksen flanker task
@@ -36,6 +37,20 @@ keywords:
   - Reaction time
   - Repeated measures ANOVA
 
+=======
+
+
+keywords: 
+  - Eriksen Flanker 
+  - Congruent 
+  - Incongruent 
+  - Congruency Effect
+  - Selective Attention
+  - Response Inhibition 
+  - Cognitive Control 
+  - Reaction Time 
+  - Repeated Measures ANOVA
+>>>>>>> ef7a763 (abstract)
 date: 2026-4-22
 bibliography: bibliography.bib
 format:
@@ -155,3 +170,7 @@ These findings support the hypothesis that stimulus incongruency impairs perform
 Despite there being a few methodological limitations, including a small and fairly homogeneous sample size, as well as having only a limited number of trials per participant, it is clear that the present study successfully replicates a well-established cognitive effect. Future research could extend these findings by increasing sample size, improving trial balance, and examining individual differences or sequential effects in cognitive control. Overall, the findings demonstrate the robustness of the flanker paradigm as a tool for studying attention and response conflict.
 
 # References {-}
+<<<<<<< HEAD
+=======
+
+>>>>>>> ef7a763 (abstract)
